@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Face Detection App</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+<style>
+   body {
+        font-family: 'Poppins', sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #F1F1F2; /* Light Gray */
+        color: #333; /* Dark Gray */
+        background-image: url('static/3.jpg');
+        background-size: cover;
+        background-position: center;
+    }
+
+
+    .container {
+        max-width: 800px;
+        margin: 50px auto;
+        padding: 20px;
+        background-color: rgba(255, 255, 255, 0.7);
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+   
+
+    #upload-form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    input[type="file"] {
+        display: none;
+    }
+
+    label {
+        width: calc(100% - 40px);
+        height: 50px;
+        line-height: 50px;
+        background-color: #1995AD; /* Light Blue */
+        color: white;
+        text-align: center;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 18px;
+        font-weight: 700;
+        text-transform: uppercase;
+        transition: background-color 0.3s, color 0.3s;
+        border: 2px solid transparent;
+    }
+
+    label:hover {
+        background-color: #80C7E5; /* Darker Blue */
+    }
+
+    label.chosen {
+        background-color: white;
+        color: #1995AD; /* Dark Blue */
+        border-color: #1995AD; /* Dark Blue */
+    }
+
+    #detect-faces-button {
+        width: calc(100% - 40px);
+        height: 50px;
+        background-color: #1995AD; /* Blue */
+        color: white;
+        font-size: 18px;
+        font-weight: 700;
+        padding: 10px 0;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        text-transform: uppercase;
+        transition: background-color 0.3s;
+    }
+
+    #detect-faces-button:hover {
+        background-color: #80C7E5; /* Darker Blue */
+    }
+
+    #result-image-container {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    #result-image {
+        max-width: 100%;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .button-container {
+        margin-top: 20px;
+        display: flex;
+        gap: 20px;
+        flex-direction: column;
+        align-items: center;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <form id="upload-form" enctype="multipart/form-data">
+        <label id="choose-image-label" for="file-input">Choose Image</label>
+        <input type="file" name="image" id="file-input" accept="image/*" required>
+    </form>
+    <div class="button-container">
+        <button id="detect-faces-button" form="upload-form" type="submit">Detect Faces</button>
+    </div>
+    <div id="result-image-container" style="display: none;">
+        <img id="result-image" src="">
+    </div>
+</div>
+
+<script>
+    document.getElementById('file-input').addEventListener('change', function(event) {
+        if (this.files && this.files[0]) {
+            document.getElementById('choose-image-label').innerText = 'Chosen';
+            document.getElementById('choose-image-label').classList.add('chosen');
+        }
+    });
+
+    document.getElementById('upload-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        var formData = new FormData(this);
+
+        document.getElementById('detect-faces-button').innerText = 'Detecting...';
+        document.getElementById('detect-faces-button').setAttribute('disabled', 'disabled');
+
+        fetch('/', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('result-image').src = `data:image/jpeg;base64,${data.image_data}`;
+            document.getElementById('result-image-container').style.display = 'block';
+            document.getElementById('detect-faces-button').innerText = 'Detect Faces';
+            document.getElementById('detect-faces-button').removeAttribute('disabled');
+            document.getElementById('choose-image-label').innerText = 'Choose Image';
+            document.getElementById('choose-image-label').classList.remove('chosen');
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('detect-faces-button').innerText = 'Detect Faces';
+            document.getElementById('detect-faces-button').removeAttribute('disabled');
+        });
+    });
+</script>
+</body>
+</html>
